@@ -11,6 +11,7 @@ db = SQLAlchemy(model_class=Base)
 class Book(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(db.String, nullable=False)
+    author: Mapped[str] = mapped_column(db.String, nullable=True)
     annotation: Mapped[str] = mapped_column(db.String(200))
     year: Mapped[int] = mapped_column(db.Integer, nullable=False)
     

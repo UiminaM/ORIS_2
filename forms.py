@@ -6,6 +6,7 @@ from datetime import datetime
 
 class BookCreateForm(FlaskForm):
     title = StringField('Название', validators=[DataRequired(), Length(min=1, max=100)])
+    author = StringField('Автор', validators=[DataRequired(), Length(min=1, max=100)])
     annotation = TextAreaField('Аннотация', validators=[DataRequired()])
     year = IntegerField('Год издания', validators=[DataRequired()])
     submit = SubmitField('Создать')
@@ -20,6 +21,7 @@ class BookCreateForm(FlaskForm):
 
 class BookUpdateForm(FlaskForm):
     title = StringField('Название', validators=[DataRequired(), Length(min=1, max=100)])
+    author = StringField('Автор', validators=[DataRequired(), Length(min=1, max=100)])
     annotation = TextAreaField('Аннотация', validators=[DataRequired()])
     year = IntegerField('Год издания', validators=[DataRequired()])
     submit = SubmitField('Обновить')
