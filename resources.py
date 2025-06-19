@@ -1,91 +1,84 @@
 from flask_marshmallow import Marshmallow
 from flask_restful import Resource
-from marshmallow import Schema, fields as ma_fields, ValidationError
-from models import db, Book
-from flask import request, jsonify
+from marshmallow import fields as ma_fields, ValidationError
+from models import db, Course
+from flask import request, Response
 from datetime import datetime
+import json
 
 ma = Marshmallow()
 
 
-class BookSchema(ma.Schema):
+class CourseSchema(ma.Schema):
     id = ma_fields.Integer(dump_only=True)
     title = ma_fields.String(required=True)
-    author = ma_fields.String(required=True)
-    annotation = ma_fields.String(required=True)
-    year = ma_fields.Integer(required=True)
-    
+    description = ma_fields.String(required=True)
+    duration_hours = ma_fields.Integer(required=True)
 
 
-book_schema = BookSchema()
-book_list_schema = BookSchema(many=True)
+course_schema = CourseSchema()
+course_list_schema = CourseSchema(many=True)
 
 
-class BookResource(Resource):
-    def get(self, book_id):
-        query = Book.query.where(Book.id == book_id)
-        book = db.session.execute(query).scalar()
-        if book:
-            return book_schema.dump(book)
-        return {"error": "Book not found"}, 404
+class CourseResource(Resource):
+    def get(self, course_id):
+        query = Course.query.where(Course.id == course_id)
+        course = db.session.execute(query).scalar()
+        if course:
+            data = course_schema.dump(course)
+            return Response(json.dumps(data, ensure_ascii=False), mimetype='application/json')
+        return Response(json.dumps({"error": "Course not found"}, ensure_ascii=False), status=404, mimetype='application/json')
 
-    def patch(self, book_id):
-        query = Book.query.where(Book.id == book_id)
-        book = db.session.execute(query).scalar()
-        if book:
+    def patch(self, course_id):
+        query = Course.query.where(Course.id == course_id)
+        course = db.session.execute(query).scalar()
+        if course:
             try:
                 if title := request.json.get("title"):
-                    book.title = title
-                if year := request.json.get("year"):
-                    current_year = datetime.now().year
-                    if year > current_year:
-                        return {"error": "Год не может быть больше текущего"}, 400
-                    if len(str(year)) > 4:
-                        return {"error": "Год не может содержать более 4 цифр"}, 400
-                    book.year = year
-                if author := request.json.get("author"):
-                    book.author = author
-                if annotation := request.json.get("annotation"):
-                    book.annotation = annotation
+                    course.title = title
+                if description := request.json.get("description"):
+                    course.description = description
+                if duration_hours := request.json.get("duration_hours"):
+                    if duration_hours < 0:
+                        return Response(json.dumps({"error": "Длительность не может быть меньше 0"}, ensure_ascii=False), status=400, mimetype='application/json')
+                    course.duration_hours = duration_hours
                 db.session.commit()
-                return {"message": "Book updated successfully"}
+                return Response(json.dumps({"message": "Course updated successfully"}, ensure_ascii=False), mimetype='application/json')
             except ValidationError as err:
-                return {"errors": err.messages}, 400
-        return {"error": "Book not found"}, 404
+                return Response(json.dumps({"errors": err.messages}, ensure_ascii=False), status=400, mimetype='application/json')
+        return Response(json.dumps({"error": "Course not found"}, ensure_ascii=False), status=404, mimetype='application/json')
 
-    def delete(self, book_id):
-        query = Book.query.where(Book.id == book_id)
-        book = db.session.execute(query).scalar()
-        if book:
-            db.session.delete(book)
+    def delete(self, course_id):
+        query = Course.query.where(Course.id == course_id)
+        course = db.session.execute(query).scalar()
+        if course:
+            db.session.delete(course)
             db.session.commit()
-            return {"message": "Book deleted successfully"}
-        return {"error": "Book not found"}, 404
+            return Response(json.dumps({"message": "Course deleted successfully"}, ensure_ascii=False), mimetype='application/json')
+        return Response(json.dumps({"error": "Course not found"}, ensure_ascii=False), status=404, mimetype='application/json')
 
 
-class BookListResource(Resource):
+class CourseListResource(Resource):
     def get(self):
-        books = Book.query.all()
-        return book_list_schema.dump(books)
+        courses = Course.query.all()
+        data = course_list_schema.dump(courses)
+        return Response(json.dumps(data, ensure_ascii=False), mimetype='application/json')
 
     def post(self):
         data = request.json
         if not data:
-            return {"error": "No input data provided"}, 400
+            return Response(json.dumps({"error": "No input data provided"}, ensure_ascii=False), status=400, mimetype='application/json')
 
         try:
-            new_book = book_schema.load(data)
+            new_course = course_schema.load(data)
         except ValidationError as err:
-            return {"errors": err.messages}, 400
+            return Response(json.dumps({"errors": err.messages}, ensure_ascii=False), status=400, mimetype='application/json')
 
-        book = Book(
-            title=new_book['title'],
-            author=new_book['author'],
-            annotation=new_book['annotation'],
-            year=new_book['year']
+        course = Course(
+            title=new_course['title'],
+            description=new_course['description'],
+            duration_hours=new_course['duration_hours']
         )
-        db.session.add(book)
+        db.session.add(course)
         db.session.commit()
-        return book_schema.dump(book), 201
-
-
+        return Response(json.dumps(course_schema.dump(course), ensure_ascii=False), status=201, mimetype='application/json')

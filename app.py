@@ -2,8 +2,8 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_restful import Api
 from models import db, create_table
-from views import BookView, BookList, BookCreate, BookUpdate, BookDelete
-from resources import BookResource, BookListResource
+from views import CourseView, CourseList, CourseCreate, CourseUpdate, CourseDelete
+from resources import CourseResource, CourseListResource
 import os
 
 app = Flask(__name__, template_folder='templates')
@@ -11,23 +11,19 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///example.db'
 app.config['SECRET_KEY'] = os.urandom(24)
 db.init_app(app)
 
-# Инициализация Flask-RESTful
 api = Api(app)
 migrate = Migrate(app, db)
 
 create_table(app)
 
-api.add_resource(BookListResource, '/api/books')
-api.add_resource(BookResource, '/api/books/<int:book_id>')
+app.add_url_rule('/', view_func=CourseList.as_view('course.list', engine=db))
+app.add_url_rule('/courses/<int:course_id>/', view_func=CourseView.as_view('course.view', engine=db))
+app.add_url_rule('/courses/create/', view_func=CourseCreate.as_view('course.create', engine=db))
+app.add_url_rule('/courses/<int:course_id>/update/', view_func=CourseUpdate.as_view('course.update', engine=db))
+app.add_url_rule('/courses/<int:course_id>/delete/', view_func=CourseDelete.as_view('course.delete', engine=db))
 
-app.add_url_rule('/', view_func=BookList.as_view('book.list', engine=db))
-app.add_url_rule('/books/<int:book_id>/', view_func=BookView.as_view('book.view', engine=db))
-app.add_url_rule('/books/create/', view_func=BookCreate.as_view('book.create', engine=db))
-app.add_url_rule('/books/<int:book_id>/update/', view_func=BookUpdate.as_view('book.update', engine=db))
-app.add_url_rule('/books/<int:book_id>/delete/', view_func=BookDelete.as_view('book.delete', engine=db))
-
-
-
+api.add_resource(CourseListResource, '/api/courses')
+api.add_resource(CourseResource, '/api/courses/<int:course_id>')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=8000)

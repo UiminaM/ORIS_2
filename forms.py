@@ -4,36 +4,28 @@ from wtforms.validators import DataRequired, Length, ValidationError, NumberRang
 from datetime import datetime
 
 
-class BookCreateForm(FlaskForm):
+class CourseCreateForm(FlaskForm):
     title = StringField('Название', validators=[DataRequired(), Length(min=1, max=100)])
-    author = StringField('Автор', validators=[DataRequired(), Length(min=1, max=100)])
-    annotation = TextAreaField('Аннотация', validators=[DataRequired()])
-    year = IntegerField('Год издания', validators=[DataRequired()])
+    description = TextAreaField('Описание', validators=[DataRequired()])
+    duration_hours = IntegerField('Длительность (часы)', validators=[DataRequired(), NumberRange(min=0)])
     submit = SubmitField('Создать')
 
-    def validate_year(self, year):
-        current_year = datetime.now().year
-        if year.data > current_year:
-            raise ValidationError('Год не может быть больше текущего')
-        if len(str(year.data)) > 4:
-            raise ValidationError('Год не может содержать более 4 цифр')
+    def validate_duration_hours(self, field):
+        if field.data < 0:
+            raise ValidationError('Длительность не может быть меньше 0')
 
 
-class BookUpdateForm(FlaskForm):
+class CourseUpdateForm(FlaskForm):
     title = StringField('Название', validators=[DataRequired(), Length(min=1, max=100)])
-    author = StringField('Автор', validators=[DataRequired(), Length(min=1, max=100)])
-    annotation = TextAreaField('Аннотация', validators=[DataRequired()])
-    year = IntegerField('Год издания', validators=[DataRequired()])
+    description = TextAreaField('Описание', validators=[DataRequired()])
+    duration_hours = IntegerField('Длительность (часы)', validators=[DataRequired(), NumberRange(min=0)])
     submit = SubmitField('Обновить')
 
-    def validate_year(self, year):
-        current_year = datetime.now().year
-        if year.data > current_year:
-            raise ValidationError('Год не может быть больше текущего')
-        if len(str(year.data)) > 4:
-            raise ValidationError('Год не может содержать более 4 цифр')
+    def validate_duration_hours(self, field):
+        if field.data < 0:
+            raise ValidationError('Длительность не может быть меньше 0')
 
 
-class BookDeleteForm(FlaskForm):
+class CourseDeleteForm(FlaskForm):
     submit = SubmitField('Удалить')
 

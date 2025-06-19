@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}Добавить книгу{% endblock %}
+{% block title %}Редактировать курс {{ course.title }}{% endblock %}
 
 {% block content %}
-<h1>Добавить книгу</h1>
+<h1>Редактировать курс</h1>
 <form method="POST">
     {{ form.csrf_token }}
     <div class="mb-3">
@@ -16,26 +16,26 @@
         {% endif %}
     </div>
     <div class="mb-3">
-        {{ form.annotation.label(class="form-label") }}
-        {{ form.annotation(class="form-control") }}
-        {% if form.annotation.errors %}
-            {% for error in form.annotation.errors %}
+        {{ form.description.label(class="form-label") }}
+        {{ form.description(class="form-control") }}
+        {% if form.description.errors %}
+            {% for error in form.description.errors %}
                 <div class="text-danger">{{ error }}</div>
             {% endfor %}
         {% endif %}
     </div>
     <div class="mb-3">
-        {{ form.year.label(class="form-label") }}
-        {{ form.year(class="form-control") }}
-        {% if form.year.errors %}
-            {% for error in form.year.errors %}
+        {{ form.duration_hours.label(class="form-label") }}
+        {{ form.duration_hours(class="form-control") }}
+        {% if form.duration_hours.errors %}
+            {% for error in form.duration_hours.errors %}
                 <div class="text-danger">{{ error }}</div>
             {% endfor %}
         {% endif %}
     </div>
     <div class="mb-3">
         {{ form.submit(class="btn btn-primary") }}
-        <a href="{{ url_for('book.list') }}" class="btn btn-secondary">Отмена</a>
+        <a href="{{ url_for('course.list') }}" class="btn btn-secondary">Отмена</a>
     </div>
 </form>
-{% endblock %}
+{% endblock %} 

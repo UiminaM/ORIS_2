@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Удалить курс {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="card-title">Удалить курс</h1>
+        <p class="card-text">Вы уверены, что хотите удалить курс "{{ course.title }}"?</p>
+        <form method="POST">
+            {{ form.csrf_token }}
+            <div class="mb-3">
+                {{ form.submit(class="btn btn-danger") }}
+                <a href="{{ url_for('course.list') }}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 
